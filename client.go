@@ -46,7 +46,7 @@ func (c *Client) Get(url, body string) error {
 // Post is used to send http post request
 func (c *Client) Post(url, body string) error {
 	req := gorequest.New().Timeout(c.timeout)
-	resp, body, errs := req.Get(url).Send(body).End()
+	resp, body, errs := req.Post(url).Send(body).End()
 	if errs != nil {
 		fmt.Println(errs)
 		return fmt.Errorf("http post request error")
@@ -66,7 +66,7 @@ func (c *Client) Post(url, body string) error {
 // Delete is used to send http delete request
 func (c *Client) Delete(url, body string) error {
 	req := gorequest.New().Timeout(c.timeout)
-	resp, body, errs := req.Get(url).Send(body).End()
+	resp, body, errs := req.Delete(url).Send(body).End()
 	if errs != nil {
 		fmt.Println(errs)
 		return fmt.Errorf("http delete request error")

@@ -2,6 +2,7 @@ package curlx
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/parnurzeal/gorequest"
@@ -11,15 +12,29 @@ import (
 type Client struct {
 	timeout  time.Duration
 	formater *Formater
+	verbose  bool
 }
 
 // NewClient is used to create http client
-func NewClient(timeout time.Duration, colorize bool) *Client {
+func NewClient(timeout time.Duration, colorize, verbose bool) *Client {
 	c := &Client{
 		timeout:  timeout,
 		formater: NewFormater(colorize),
+		verbose:  verbose,
 	}
 	return c
+}
+
+func (c *Client) printResponseHeader(resp *http.Response) {
+	fmt.Printf("%v %v\n", resp.Proto, resp.Status)
+	for k, v := range resp.Header {
+		fmt.Printf("%v: ", k)
+		for _, n := range v {
+			fmt.Printf("%v", n)
+		}
+		fmt.Printf("\n")
+	}
+	fmt.Printf("\n")
 }
 
 // Get is used to send http get request
@@ -32,6 +47,10 @@ func (c *Client) Get(url, body string) error {
 	}
 	defer resp.Body.Close()
 
+	if c.verbose {
+		c.printResponseHeader(resp)
+	}
+
 	result, err := c.formater.ExportJSON(body)
 	if err != nil {
 		fmt.Println(body)
@@ -39,7 +58,6 @@ func (c *Client) Get(url, body string) error {
 	}
 
 	fmt.Println(result)
-
 	return nil
 }
 
@@ -52,6 +70,10 @@ func (c *Client) Post(url, body string) error {
 		return fmt.Errorf("http post request error")
 	}
 	defer resp.Body.Close()
+
+	if c.verbose {
+		c.printResponseHeader(resp)
+	}
 
 	result, err := c.formater.ExportJSON(body)
 	if err != nil {
@@ -72,6 +94,10 @@ func (c *Client) Delete(url, body string) error {
 		return fmt.Errorf("http delete request error")
 	}
 	defer resp.Body.Close()
+
+	if c.verbose {
+		c.printResponseHeader(resp)
+	}
 
 	result, err := c.formater.ExportJSON(body)
 	if err != nil {
